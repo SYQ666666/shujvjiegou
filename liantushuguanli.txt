@@ -1,0 +1,175 @@
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
+
+#define OK 1
+#define ERROR 0
+#define OVERFLOW -2
+
+typedef int Status; // Status 是函数返回值类型，其值是函数结果状态代码。
+typedef int ElemType; // ElemType 为可定义的数据类型，此设为 int 类型
+
+typedef struct {
+    int id; // ISBN
+    char name[50]; // 书名
+    double price; // 定价
+} Book;
+
+typedef struct LNode {
+    Book data;
+    struct LNode *next;
+} LNode, *LinkList;
+
+Status InitList(LinkList *L) {
+    *L = (LinkList)malloc(sizeof(LNode));
+    if (*L == NULL)
+        return ERROR;  // 分配失败
+    (*L)->next = NULL;  // 头结点指针域置空
+    return OK;  // 初始化成功
+}
+
+Status GetElem(LinkList L, int i, Book *e) {
+    int j;
+    LinkList p;
+    p = L->next;
+    j = 1;
+    while (p && j < i) {
+        p = p->next;
+        ++j;
+    }
+    if (!p || j > i)
+        return ERROR;
+    *e = p->data;
+    return OK;
+}
+
+LNode *LocateElem(LinkList L, double e) {
+    LinkList p;
+    p = L->next;
+    while (p && p->data.price != e)
+        p = p->next;
+    return p;
+}
+
+Status ListInsert(LinkList *L, int i, Book e) {
+    int j;
+    LinkList p, s;
+    p = *L;
+    j = 0;
+    while (p && j < i - 1) {
+        p = p->next;
+        ++j;
+    }
+    if (!p || j > i - 1)
+        return ERROR;
+    
+    s = (LinkList)malloc(sizeof(LNode));
+    if (s == NULL)
+        return ERROR;  // 分配失败
+    s->data = e;
+    s->next = p->next;
+    p->next = s;
+    return OK;
+}
+
+Status ListDelete(LinkList *L, int i) {
+    LinkList p, q;
+    int j;
+    p = *L;
+    j = 0;
+    while ((p->next) && (j < i - 1)) {
+        p = p->next;
+        ++j;
+    }
+    if (!(p->next) || (j > i - 1))
+        return ERROR;
+    q = p->next;
+    p->next = q->next;
+    free(q);
+    return OK;
+}
+
+void CreateList_H(LinkList *L, int n) {
+    LinkList p;
+    int i;
+    *L = (LinkList)malloc(sizeof(LNode));
+    (*L)->next = NULL;
+    for (i = 0; i < n; i++) {
+        p = (LinkList)malloc(sizeof(LNode));
+        printf("请输入第 %d 本书的价格: ", i + 1);
+        scanf("%lf", &p->data.price);
+        p->next = (*L)->next;
+        (*L)->next = p;
+    }
+}
+
+int main() {
+    LinkList L;
+    Book e;
+    int choice, position;
+    printf("1. 初始化链表\n");
+    printf("2. 获取指定位置元素\n");
+    printf("3. 在指定位置插入元素\n");
+    printf("4. 删除指定位置元素\n");
+    printf("5. 按价格查找元素\n");
+    printf("6. 头插法创建链表\n");
+    printf("0. 退出\n");
+    while (1) {
+        printf("请选择操作：");
+        scanf("%d", &choice);
+        switch (choice) {
+            case 1:
+                if (InitList(&L) == OK)
+                    printf("链表初始化成功！\n");
+                else
+                    printf("链表初始化失败！\n");
+                break;
+            case 2:
+                printf("请输入要获取的元素位置：");
+                scanf("%d", &position);
+                if (GetElem(L, position, &e) == OK)
+                    printf("获取成功！第 %d 个元素的价格为：%lf\n", position, e.price);
+                else
+                    printf("获取失败！\n");
+                break;
+            case 3:
+                printf("请输入要插入的位置和价格：");
+                scanf("%d %lf", &position, &e.price);
+                if (ListInsert(&L, position, e) == OK)
+                    printf("插入成功！\n");
+                else
+                    printf("插入失败！\n");
+                break;
+            case 4:
+                printf("请输入要删除的位置：");
+                scanf("%d", &position);
+                if (ListDelete(&L, position) == OK)
+                    printf("删除成功！\n");
+                else
+                    printf("删除失败！\n");
+                break;
+            case 5:
+                printf("请输入要查找的价格：");
+                scanf("%lf", &e.price);
+                if (LocateElem(L, e.price) != NULL)
+                    printf("查找成功！\n");
+                else
+                    printf("查找失败！\n");
+                break;
+            case 6:
+                printf("请输入要创建链表的长度：");
+                scanf("%d", &position);
+                CreateList_H(&L, position);
+                printf("链表创建成功！\n");
+                break;
+            case 0:
+                printf("程序已退出！\n");
+                exit(0);
+            default:
+                printf("请输入正确的操作序号！\n");
+                break;
+        }
+    }
+    return 0;
+}
+
