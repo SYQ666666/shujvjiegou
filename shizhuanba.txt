@@ -1,0 +1,65 @@
+#include<stdio.h>
+ #include<stdlib.h>
+ #define MAXSIZE 100
+ #define OK 1
+ #define ERROR 0
+ #define OVERFLOW -2
+ typedef struct
+ {
+ 	int *base;
+ 	int *top;
+ 	int stacksize;
+  } SqStack;
+  typedef int Status;
+  Status InitStack(SqStack *S)
+  {
+  	 S->base = (int*) malloc(MAXSIZE * sizeof(int)); 
+    if ( S->base == NULL) {
+        printf("内存分配失败！\n");
+        return OVERFLOW;
+    }
+S->top=S->base;
+S->stacksize=MAXSIZE;
+return OK;
+}
+Status Push(SqStack *S,int e)
+{
+	if(S->top-S->base==S->stacksize) return ERROR;
+	*S->top++=e;
+	return OK;
+}
+Status Pop(SqStack *S,int *e)
+{
+	if(S->top==S->base) return ERROR;
+	*e=*--S->top;
+	return OK;
+}
+int StackEmpty(SqStack *S)
+{
+	if(S->top==S->base) return OK;
+	else return ERROR;
+}
+void Conversion(int N)
+{
+	SqStack S;
+	int e;
+	InitStack(&S);
+	while(N)
+	{
+		Push(&S,N%8);
+		N=N/8;
+	}
+	while(!StackEmpty (&S))
+	{
+		Pop(&S,&e);
+		printf("%d",e);
+	}
+}
+int main()
+{
+	int N;
+	scanf("%d",&N);
+	Conversion(N);
+
+	
+}
